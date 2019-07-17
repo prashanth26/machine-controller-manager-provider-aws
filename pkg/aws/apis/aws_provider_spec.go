@@ -147,3 +147,34 @@ type Secrets struct {
 	// AWS cloud config file (base64 encoded)
 	UserData string `json:"userData,omitempty"`
 }
+
+// PersistentVolumeSpec is partial the specification of a persistent volume.
+// The specification is just enough to decode the volume ID for an AWSEBS volume.
+type PersistentVolumeSpec struct {
+	// The actual volume backing the persistent volume.
+	PersistentVolumeSource `json:",inline" protobuf:"bytes,2,opt,name=persistentVolumeSource"`
+}
+
+// PersistentVolumeSource is similar to VolumeSource but meant for the
+// administrator who creates PVs. Exactly one of its members must be set.
+// This is also a partial spec.
+type PersistentVolumeSource struct {
+	// AWSElasticBlockStore represents an AWS Disk resource that is attached to a
+	// kubelet's host machine and then exposed to the pod.
+	// More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+	// +optional
+	AWSElasticBlockStore *AWSElasticBlockStoreVolumeSource `json:"awsElasticBlockStore,omitempty" protobuf:"bytes,2,opt,name=awsElasticBlockStore"`
+}
+
+// AWSElasticBlockStoreVolumeSource represents a Persistent Disk resource in AWS.
+//
+// An AWS EBS disk must exist before mounting to a container. The disk
+// must also be in the same AWS zone as the kubelet. An AWS EBS disk
+// can only be mounted as read/write once. AWS EBS volumes support
+// ownership management and SELinux relabeling.
+// This is also an partial spec.
+type AWSElasticBlockStoreVolumeSource struct {
+	// Unique ID of the persistent disk resource in AWS (Amazon EBS volume).
+	// More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+	VolumeID string `json:"volumeID" protobuf:"bytes,1,opt,name=volumeID"`
+}
